@@ -45,8 +45,8 @@
 			<h2>Menu</h2>
 			<ul>
 				<li><a href="index.html">Home</a></li>
-				<li><a href="generic.html">Ipsum veroeros</a></li>
-				<li><a href="generic.html">Tempus etiam</a></li>
+				<li><a href="generic.html">Procesamiento previo de datos</a></li>
+				<li><a href="generic.html">Regresion Linear</a></li>
 				<li><a href="generic.html">Consequat dolor</a></li>
 				<li><a href="elements.html">Elements</a></li>
 			</ul>
@@ -93,13 +93,15 @@ data = pd.read_csv ( '/content/drive/MyDrive/UCU/IA 1/boston_housing .csv', deli
 data.head()</code></pre>
 				<div class="col-2"><span class="image fit"><img src="images/boston_head.png" alt="" /></span></div>
 				<p>diagramas de caja para ver otliers,FALTA ANALISIS</p>
-				<pre><code>fig, axs = plt.subplots(ncols=7, nrows=2, figsize=(20, 10))
-					index = 0
-					axs = axs.flatten()
-					for k,v in data.items():
-						sns.boxplot(y=k, data=data, ax=axs[index])
-						index += 1
-					plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=5.0)</code></pre>
+				<pre><code>
+fig, axs = plt.subplots(ncols=7, nrows=2, figsize=(20, 10))
+index = 0
+axs = axs.flatten()
+for k,v in data.items():
+	sns.boxplot(y=k, data=data, ax=axs[index])
+	index += 1
+plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=5.0)</code></pre>
+				<div class="col-2"><span class="image fit"><img src="images/boxplot_boston.png" alt="" /></span></div>
 				<p>Porcentaje de outliers en cada columna</p>
 				<pre><code>
 	for k, v in data.items():
@@ -110,9 +112,11 @@ data.head()</code></pre>
     perc = np.shape(v_col)[0] * 100.0 / np.shape(data)[0]
     print("Column %s outliers = %.2f%%" % (k, perc))
 				</code></pre>
-				<h4>histograma de medv</h4>
+				<h4>Histograma de la variable objetivo</h4>
 				<p>Los valores de la variabale MEDv estan tienen una distribucion normal, con algunos outliers. FALTA
 					FOTO</p>
+				<div class="col-2"><span class="image fit"><img src="images/histograma_boston.png" alt="" /></span>
+				</div>
 				<h4>matriz de correlacion</h4>
 				<h3>Modelado y prediccion</h3>
 				<h5>'Split data' en test y train</h5>
@@ -147,16 +151,9 @@ data.head()</code></pre>
 				<section>
 					<h2>Follow</h2>
 					<ul class="icons">
-						<li><a href="#" class="icon brands style2 fa-twitter"><span class="label">Twitter</span></a>
-						</li>
-						<li><a href="#" class="icon brands style2 fa-facebook-f"><span class="label">Facebook</span></a>
-						</li>
-						<li><a href="#" class="icon brands style2 fa-instagram"><span class="label">Instagram</span></a>
-						</li>
-						<li><a href="#" class="icon brands style2 fa-dribbble"><span class="label">Dribbble</span></a>
+						<li><a href="#" class="icon brands style2 fa-instagram"><span class="label">Linkedin</span></a>
 						</li>
 						<li><a href="#" class="icon brands style2 fa-github"><span class="label">GitHub</span></a></li>
-						<li><a href="#" class="icon brands style2 fa-500px"><span class="label">500px</span></a></li>
 						<li><a href="#" class="icon solid style2 fa-phone"><span class="label">Phone</span></a></li>
 						<li><a href="#" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
 					</ul>
