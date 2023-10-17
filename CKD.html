@@ -1,0 +1,386 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+
+<head>
+	<title>Generic - Phantom by HTML5 UP</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<noscript>
+		<link rel="stylesheet" href="assets/css/noscript.css" />
+	</noscript>
+</head>
+
+<body class="is-preload">
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Header -->
+		<header id="header">
+			<div class="inner">
+
+				<!-- Logo -->
+				<a href="index.html" class="logo">
+					<span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Phantom</span>
+				</a>
+
+				<!-- Nav -->
+				<nav>
+					<ul>
+						<li><a href="#menu">Menu</a></li>
+					</ul>
+				</nav>
+
+			</div>
+		</header>
+
+		<!-- Menu -->
+		<nav id="menu">
+			<h2>Menu</h2>
+			<ul>
+				<li><a href="index.html">Home</a></li>
+				<li><a href="generic.html">Ipsum veroeros</a></li>
+				<li><a href="generic.html">Tempus etiam</a></li>
+				<li><a href="generic.html">Consequat dolor</a></li>
+				<li><a href="elements.html">Elements</a></li>
+			</ul>
+		</nav>
+
+		<!-- Main -->
+		<div id="main">
+			<div class="inner">
+				<h1>Generic Page</h1>
+				<span class="image main"><img src="images/Chronic_Kidney_Disease.jpeg" alt="" /></span>
+				<p></p>
+				<h2>Análisis de datos</h2>
+				<h3>1- Importar librerias</h4>
+					<p>Para esta demostracióon estaremos utilizando Python, por lo tanto debemos de importar las
+						librerias
+						que vamos a utilizar para analizar y visualizar los datos.</p>
+					<pre>
+								<code>
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+from scipy.io import arff
+from sklearn.impute import KNNImputer
+
+import warnings
+warnings.filterwarnings('ignore')
+
+plt.style.use('fivethirtyeight')
+%matplotlib inline
+pd.set_option('display.max_columns', 26)
+								</code>
+							</pre>
+					<h3>2- Cargar dataset</h3>
+					<p>Cargamos el dataset con la librerias de pandas desde un archivo .csv
+						en un dataframe. Luego visualizamos los primeros datos del dataset para visualizar que son los
+						correctos.
+					</p>
+					<pre>
+				<code>
+df= pd.read_csv('/content/drive/MyDrive/UCU/IA 1/kidney_disease.csv')
+df.head()
+					</code>
+				</pre>
+					<p>Eliminamos la columna de "id" ya que no es relevante para esta predicción</p>
+					<pre>
+				<code>
+df.drop('id', axis = 1, inplace = True)
+				</code>
+				</pre>
+					<p>Con el metodos .describe() podemos visualizar los valores como suma, media, min y max, etc para
+						cada una de las
+						columnas. Esto sirve para tener una idea mejor sobre los datos que tenemos y cuanto debemos
+						tratarlos.</p>
+					<pre>
+					<code>
+df.describe()
+					</code>
+				</pre>
+					<p>Para una mejor comprensión de los datos, decidí cambiarles los nombres de cada columna, por sus
+						nombre completo, en vez de abreviatura.</p>
+					<pre>
+				<code>
+df.columns = ['age', 'blood_pressure', 'specific_gravity', 'albumin', 'sugar', 'red_blood_cells', 'pus_cell',
+'pus_cell_clumps', 'bacteria', 'blood_glucose_random', 'blood_urea', 'serum_creatinine', 'sodium',
+'potassium', 'haemoglobin', 'packed_cell_volume', 'white_blood_cell_count', 'red_blood_cell_count',
+'hypertension', 'diabetes_mellitus', 'coronary_artery_disease', 'appetite', 'peda_edema',
+'aanemia', 'classification']
+					</code>
+				</pre>
+					<p>Con el metodo .info() podemos conocer el tipo que tiene cada columna. Podemos ver que hay tres
+						columnas:
+						'packed_cell_volume', 'white_blood_cell_count' y 'red_blood_cell_count' que tienen valores de
+						tipo object pero son numericos.
+					</p>
+					<pre>
+					<code>
+df.info()
+					</code>
+				</pre>
+					<p>Cambiamos los tipos de las columnas de object a numeric: </p>
+					<pre>
+				<code>
+df['packed_cell_volume'] = pd.to_numeric(df['packed_cell_volume'], errors='coerce')
+df['white_blood_cell_count'] = pd.to_numeric(df['white_blood_cell_count'], errors='coerce')
+df['red_blood_cell_count'] = pd.to_numeric(df['red_blood_cell_count'], errors='coerce')
+				</code>
+				</pre>
+
+					<p> Para poder visualizar mejor los datos numericos y categóricos, separamos
+						en dos variables las columnas que son de tipo object y las que no:
+					</p>
+					<pre>
+				<code>
+cat_cols = [col for col in df.columns if df[col].dtype == 'object']
+num_cols = [col for col in df.columns if df[col].dtype != 'object']
+				</code>
+				</pre>
+					<p>Vemos los valores únicos que hay en cada atributo de tipo categórico. Verificamos que
+						sean los correctos con respecto a la información del dataset, brindada anteriormente.
+					</p>
+					<pre>
+				<code>
+for col in cat_cols:
+print(f"{col} has {df[col].unique()} values\n")
+				</code>
+				</pre>
+					<p>Corregimos los valores incorrectos encontrados en las diferentes columnas. En este caso podemos
+						ver que,
+						los valores incorrectos encontrados son typos o cosas que al leer el dataset quedaron mal.
+					</p>
+					<pre>
+				<code>
+df['diabetes_mellitus'].replace(to_replace = {'\tno':'no','\tyes':'yes',' yes':'yes'},inplace=True)
+
+df['coronary_artery_disease'] = df['coronary_artery_disease'].replace(to_replace = '\tno', value='no')
+
+df['classification'] = df['classification'].replace(to_replace = {'ckd\t': 'ckd'})
+				</code>
+				</pre>
+					<h3>Distribución de los atributos númericos</h3>
+					<p>Para visualizar las distribuciones de estos atributos utilizamos las siguientes funciones, que
+						nos muestras
+						los graficos de la ditribucion de los datos:
+					</p>
+					<pre>
+				<code>
+plt.figure(figsize = (20, 15))
+plotnumber = 1
+
+for column in num_cols:
+	if plotnumber <= 14:
+		ax = plt.subplot(3, 5, plotnumber)
+		sns.distplot(df[column])
+		plt.xlabel(column)
+		
+	plotnumber += 1
+
+plt.tight_layout()
+plt.show()						
+					</code>
+				<div class="col-2"><span class="image fit"><img src="images/ckd_distribuciones.png" alt="" /></span></div>
+				</pre>
+					<h3>Valores faltantes</h3>
+					<p>Necesitamos chequear si el dataset tiene valores faltantes, ya que estos pueden afectar en el
+						rendimiento de los algoritmos utilizados para la prediccón. Según la cantidad de valores
+						faltantes en cada
+						columna, se debe de decidir que método utilizar para arreglarlos.
+					</p>
+					<pre>
+				<code>
+print(df.isnull().sum())
+				</code>
+				</pre>
+					<div class="col-2"><span class="image fit"><img src="images/ckd_missing_values.png" alt="" /></span>
+					</div>
+					<p>En este caso utilizaré el KNNImputer. Este identificca los valores faltantes y los reemplaza
+						utilizando el algoritmo "KNN" o el "algoritmo del vecino más cercano". Este utiliza la
+						proximidad para clasificar que valor es el correcpondiente para esa variable.
+
+						Pero primero debemos de pasar las variables categóricas a númericas, en este caso es posible ya
+						que todas las categóricas
+						tienen solo dos valores posibles.
+					</p>
+					<pre>
+				<code>
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+
+for col in cat_cols:
+df[col] = le.fit_transform(df[col])
+				</code>
+				</pre>
+					<p>Ahora si reemplazamos los valores faltantes con el algortimos de KNN.
+						Posterior a reemplazar los valores debemos de convertir el resultado a un DataFrame de pandas
+						como estabamos utilzando previamente
+						y agregarle los nombres a las columnas, ya que el método imputer.fit_transform() nos devuelve un
+						array.
+					</p>
+					<pre>
+					<code>
+
+imputer = KNNImputer(n_neighbors=5,weights='uniform', metric='nan_euclidean')
+df = imputer.fit_transform(df)
+df = pd.DataFrame(df)
+
+df.columns = ['age', 'blood_pressure', 'specific_gravity', 'albumin', 'sugar', 'red_blood_cells', 'pus_cell',
+              'pus_cell_clumps', 'bacteria', 'blood_glucose_random', 'blood_urea', 'serum_creatinine', 'sodium',
+              'potassium', 'haemoglobin', 'packed_cell_volume', 'white_blood_cell_count', 'red_blood_cell_count',
+              'hypertension', 'diabetes_mellitus', 'coronary_artery_disease', 'appetite', 'peda_edema',
+              'aanemia', 'classification']
+df.head()
+					</code>
+				</pre>
+					<h2> Creación del Modelo</h2>
+					<p>Primero debemos de separar el dataset en un set de entrenamiento y un set de testing.</p>
+					<pre>
+					<code>
+ind_col = [col for col in df.columns if col != 'classification']
+dep_col = 'classification'
+
+X = df[ind_col]
+y = df[dep_col]
+# splitting data intp training and test set
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.30, random_state = 0)
+					</code>
+				</pre>
+					<h3>KNN</h3>
+					<pre>
+					<code>
+						from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+knn = KNeighborsClassifier()
+knn.fit(X_train, y_train)
+
+# accuracy score, confusion matrix and classification report of knn
+
+knn_acc = accuracy_score(y_test, knn.predict(X_test))
+
+print(f"Training Accuracy of KNN is {accuracy_score(y_train, knn.predict(X_train))}")
+print(f"Test Accuracy of KNN is {knn_acc} \n")
+
+print(f"Confusion Matrix :- \n{confusion_matrix(y_test, knn.predict(X_test))}\n")
+print(f"Classification Report :- \n {classification_report(y_test, knn.pred
+					</code>
+				</pre>
+					<div class="col-2"><span class="image fit"><img src="images/KNN_Modelo.png" alt="" /></span></div>
+					<h3>Random Forest</h3>
+					<pre>
+					<code>
+						from sklearn.ensemble import RandomForestClassifier
+
+rd_clf = RandomForestClassifier(criterion = 'entropy', max_depth = 11, max_features = 'auto', min_samples_leaf = 2, min_samples_split = 3, n_estimators = 130)
+rd_clf.fit(X_train, y_train)
+
+# accuracy score, confusion matrix and classification report of random forest
+
+rd_clf_acc = accuracy_score(y_test, rd_clf.predict(X_test))
+
+print(f"Training Accuracy of Random Forest Classifier is {accuracy_score(y_train, rd_clf.predict(X_train))}")
+print(f"Test Accuracy of Random Forest Classifier is {rd_clf_acc} \n")
+
+print(f"Confusion Matrix :- \n{confusion_matrix(y_test, rd_clf.predict(X_test))}\n")
+print(f"Classification Report :- \n {classification_report(y_test, rd_clf.predict(X_test))}")
+					</code>
+				</pre>
+					<div class="col-2"><span class="image fit"><img src="images/Random_Forest_Modelo.png"
+								alt="" /></span>
+					</div>
+					<pre>
+					<code>
+						models = pd.DataFrame({
+							'Model' : [ 'KNN',  'Random Forest Classifier'],
+							'Score' : [knn_acc, rd_clf_acc]
+						})
+						
+						
+						models.sort_values(by = 'Score', ascending = False)
+					</code>
+				</pre>
+					<div class="col-2"><span class="image fit"><img src="images/Modelos.png" alt="" /></span></div>
+					<pre>
+					<code>
+			px.bar(data_frame = models, x = 'Score', y = 'Model', color = 'Score',  
+       title = 'Models Comparison')
+					</code>
+				</pre>
+					<div class="col-2"><span class="image fit"><img src="images/Comparación_Modelos.png"
+								alt="" /></span>
+					</div>
+			</div>
+		</div>
+
+		<!-- Footer -->
+		<footer id="footer">
+			<div class="inner">
+				<section>
+					<h2>Get in touch</h2>
+					<form method="post" action="#">
+						<div class="fields">
+							<div class="field half">
+								<input type="text" name="name" id="name" placeholder="Name" />
+							</div>
+							<div class="field half">
+								<input type="email" name="email" id="email" placeholder="Email" />
+							</div>
+							<div class="field">
+								<textarea name="message" id="message" placeholder="Message"></textarea>
+							</div>
+						</div>
+						<ul class="actions">
+							<li><input type="submit" value="Send" class="primary" /></li>
+						</ul>
+					</form>
+				</section>
+				<section>
+					<h2>Follow</h2>
+					<ul class="icons">
+						<li><a href="#" class="icon brands style2 fa-twitter"><span class="label">Twitter</span></a>
+						</li>
+						<li><a href="#" class="icon brands style2 fa-facebook-f"><span class="label">Facebook</span></a>
+						</li>
+						<li><a href="#" class="icon brands style2 fa-instagram"><span class="label">Instagram</span></a>
+						</li>
+						<li><a href="#" class="icon brands style2 fa-dribbble"><span class="label">Dribbble</span></a>
+						</li>
+						<li><a href="#" class="icon brands style2 fa-github"><span class="label">GitHub</span></a></li>
+						<li><a href="#" class="icon brands style2 fa-500px"><span class="label">500px</span></a></li>
+						<li><a href="#" class="icon solid style2 fa-phone"><span class="label">Phone</span></a></li>
+						<li><a href="#" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
+					</ul>
+				</section>
+				<ul class="copyright">
+					<li>&copy; Untitled. All rights reserved</li>
+					<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+		</footer>
+
+	</div>
+
+	<!-- Scripts -->
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/browser.min.js"></script>
+	<script src="assets/js/breakpoints.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
